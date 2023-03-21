@@ -2,7 +2,7 @@
 This is a <b>general purpose bot framework</b> that aims at generalizing and simplyfying <b>bot frameworks</b>.
 
 ## Cross compatibility
-One of <pre>bot general framework</pre>'s objective is to generalize bot components such that <b>one codebase can be written</b> for many platforms.
+One of `bot general framework`'s objective is to generalize bot components such that <b>one codebase can be written</b> for many platforms.
 
 <b>No functionality may be implemented if it cannot comply with cross-compatibility</b>.
 
@@ -11,7 +11,7 @@ One fundamental principle around the project is simplicity. The codebase for a b
 
 On the other hand, the implementation code in <b>C#</b> must be <b>well-documented</b> and <b>easy to read</b>. Inheritance is allowed where strictly needed.
 
-<pre>prefer composition over inheritance</pre>
+`prefer composition over inheritance`
 
 ## Contribution
 Contributing to the project is welcome when it follows all the above principles.
