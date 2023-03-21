@@ -3,37 +3,42 @@ using BotGeneralFramework.Interfaces.Core;
 
 public sealed class App
 {
-  private readonly List<IBot> runningBots = new();
-  private readonly Dictionary<string, List<dynamic>> events = new();
-  private readonly List<dynamic> middlewares = new();
-  private readonly Context context = new();
+  public delegate void Middleware(dynamic ctx, Action next);
 
-  private void runMiddlewares(Context ctx)
+  private readonly List<IBot> runningBots = new();
+  private readonly Dictionary<string, List<Middleware>> events = new();
+  private readonly List<Middleware> middlewares = new();
+  private readonly Context context;
+
+  private Action<int> runMiddlewares(dynamic ctx)
   {
     Action<int>? loop = null;
     var middlewaresCount = middlewares.Count;
     loop = (int index) => {
       var next = () => loop!(++index);
-      if (index > middlewaresCount) return;
+      if (index >= middlewaresCount) return;
       middlewares.ElementAt(index)(
         ctx,
         next
       );
     };
+    return loop;
   }
-  private void runEventMiddlewares(string eventName, Context ctx)
+  private Action<int> runEventMiddlewares(string eventName, dynamic ctx)
   {
     Action<int>? loop = null;
     var middlewares = events[eventName];
     var middlewaresCount = middlewares.Count;
     loop = (int index) => {
       var next = () => loop!(++index);
-      if (index > middlewaresCount) return;
+      if (index >= middlewaresCount) return;
       middlewares.ElementAt(index)(
         ctx,
         next
       );
     };
+
+    return loop;
   }
 
   /// <summary>
@@ -52,13 +57,13 @@ public sealed class App
   /// <param name="eventName">The event name</param>
   /// <param name="callbacks">The callbacks to register</param>
   /// <returns>The app</returns>
-  public App on(string eventName, params dynamic[] callbacks)
+  public App on(string eventName, params Middleware[] callbacks)
   {
     // If the event does not exist, create it, and add the callbacks to the list.
     if (!this.events.ContainsKey(eventName))
           this.events.Add(
             eventName,
-            new List<dynamic>(
+            new List<Middleware>(
               callbacks
             )
           );
@@ -72,7 +77,7 @@ public sealed class App
   /// </summary>
   /// <param name="middlewares">The middlewares to register</param>
   /// <returns>The app</returns>
-  public App use(params dynamic[] middlewares)
+  public App use(params Middleware[] middlewares)
   {
     this.middlewares.AddRange(middlewares);
     return this;
@@ -90,7 +95,12 @@ public sealed class App
     if (!this.events.ContainsKey(eventName))
           return;
     // If the event does exist, first call all the middlewares, then call all the callbacks.
-    runMiddlewares(ctx);
-    runEventMiddlewares(eventName, ctx);
+    runMiddlewares(ctx)(0);
+    runEventMiddlewares(eventName, ctx)(0);
+  }
+
+  public App(Context? context = null)
+  {
+    this.context = context ?? new Context();
   }
 }
