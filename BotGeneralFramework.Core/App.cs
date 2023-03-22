@@ -1,6 +1,13 @@
 namespace BotGeneralFramework.Core;
 using BotGeneralFramework.Interfaces.Core;
 
+/// <summary>
+/// The app class
+/// </summary>
+/// <remarks>
+/// This is is the main class of the framework.
+/// It is used to register bots, and to register event middlewares.
+/// </remarks>
 public sealed class App
 {
   public delegate void Middleware(dynamic ctx, Action next);
@@ -99,6 +106,10 @@ public sealed class App
     runEventMiddlewares(eventName, ctx)(0);
   }
 
+  /// <summary>
+  /// The app constructor
+  /// </summary>
+  /// <param name="context">The context</param>
   public App(Context? context = null)
   {
     this.context = context ?? new Context();
