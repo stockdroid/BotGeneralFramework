@@ -1,25 +1,31 @@
 namespace BotGeneralFramework.Structs.CLI;
 using BotGeneralFramework.Utils;
 
-public sealed class Options
+public sealed record Options
 {
-  private readonly CachedProperty<string> _configPath = Cache.createCache<string>(true);
+  private readonly CachedProperty<string> _configPath = Cache.createCache<string>(true, "./botconfig.json");
   private readonly CachedProperty<string> _mainModule = Cache.createCache<string>(true);
+  private readonly CachedProperty<bool> _parsed = Cache.createCacheUnmanaged<bool>(false, false);
   
+  public bool Parsed { get => _parsed.getter()!; set => _parsed.setter(value); }
+
   /// <summary>
   /// Whether to show verbose output
   /// </summary>
-  public bool Verbose { get; set; }
+  public bool Verbose { get; set; } = false;
   /// <summary>
   /// Whether to time the execution of the program
   /// </summary>
-  public bool Time { get; set; }
+  public bool Time { get; set; } = false;
   /// <summary>
   /// The path to the config file
   /// </summary>
+  /// <remarks>
+  /// This is the path to the config file that will be used by the program.
+  /// </remarks>
   public string ConfigPath
   {
-    get => _configPath.getter() ?? "./botconfig.json";
+    get => _configPath.getter()!;
     set => _configPath.setter(value);
   }
   /// <summary>
