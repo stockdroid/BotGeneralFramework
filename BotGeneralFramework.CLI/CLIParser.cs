@@ -1,6 +1,7 @@
 namespace BotGeneralFramework.CLI;
 
 using BotGeneralFramework.Structs.CLI;
+using BotGeneralFramework.Records.CLI;
 using Fastenshtein;
 
 public static class CLIParser
@@ -172,6 +173,28 @@ public static class CLIParser
           return current;
         },
         Description = "Set the script to run."
+      },
+      new Argument
+      {
+        Name = "Config",
+        LongForm = "config",
+        ShortForm = "c",
+        Validator = (args) =>
+        {
+          string filename = args.Peek();
+          if (Path.Exists(filename))
+          {
+            if (Path.GetExtension(filename).EndsWith(".json")) return (true, null);
+            else return (false, $"The file {filename} is not a JSON file.");
+          }
+          else return (false, $"The file {filename} does not exist.");
+        },
+        Action = (args, current) =>
+        {
+          current.ConfigPath = args.Pop();
+          return current;
+        },
+        Description = "Set the configuration file to use."
       },
       new Argument
       {

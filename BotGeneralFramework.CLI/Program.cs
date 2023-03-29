@@ -60,3 +60,9 @@ new Argument
   Description = "Initialize a new project."
 });
 var options = CLIParser.Parse(args);
+
+if (options.MainModule is null)
+{
+  Console.WriteLine("Error: No module specified.");
+  return;
+}

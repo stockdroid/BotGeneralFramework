@@ -1,4 +1,4 @@
-namespace BotGeneralFramework.Structs.CLI;
+namespace BotGeneralFramework.Records.CLI;
 using BotGeneralFramework.Utils;
 
 public sealed record Options
