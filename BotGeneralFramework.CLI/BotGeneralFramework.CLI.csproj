@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="Fastenshtein" Version="1.0.0.8" />
-    <PackageReference Include="Jint" Version="2.11.58" />
   </ItemGroup>
 
   <ItemGroup>

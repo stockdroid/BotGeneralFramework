@@ -1,5 +1,9 @@
 ﻿using BotGeneralFramework.CLI;
 using BotGeneralFramework.Structs.CLI;
+using BotGeneralFramework.Records.CLI;
+using System.Text.Json;
+using BotGeneralFramework.Core;
+using BotGeneralFramework.Runtime;
 
 CLIParser.AddArguments(new Argument
 {
@@ -36,6 +40,8 @@ new Argument
   Terminate = true,
   Validator = (args) =>
   {
+    if (!args.Any()) return (false, "No path specified.");
+
     // Get the path from the arguments and check if it's valid
     var path = args.Peek();
     if (path.StartsWith("-")) return (false, $"The path {path} is not valid.");
@@ -54,15 +60,49 @@ new Argument
     // Create the directory
     Directory.CreateDirectory(path);
 
-    // The creation of the actual project will be added later
+    var config = CLIParser.CreateConfig();
+    var configPath = Path.Combine(path, "botconfig.json");
+
+    // Write the config file
+    File.WriteAllText(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions
+    {
+      WriteIndented = true
+    }));
+
+    // create the typings file
+    var typingsPath = Path.Combine(path, "types.d.ts");
+    File.WriteAllText(typingsPath, TypeScript.GetTypes());
+
+    // Create the main module
+    var mainModulePath = Path.Combine(path, "bot.js");
+    File.WriteAllText(mainModulePath,
+    """
+    /// <reference path="./types.d.ts" />
+    app.on("ready", (ctx, next) => {
+      console.log("Bot ready!");
+      return next();
+    });
+    """);
+
     return current;
   },
   Description = "Initialize a new project."
 });
 var options = CLIParser.Parse(args);
 
-if (options.MainModule is null)
+// Assert the options
+var (result, error) = AssertManager.AssertOptions(options);
+if (!result)
 {
-  Console.WriteLine("Error: No module specified.");
-  return;
+  Console.WriteLine(error);
+  return 1;
 }
+
+var engine = new Engine(CLIParser.GetParsedConfig(options.ConfigPath), options);
+engine.Run(
+  new FileInfo(options.MainModule!)
+).trigger("ready", new Context());
+
+
+
+return 0;

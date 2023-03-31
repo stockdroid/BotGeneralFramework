@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 public sealed record PlatformInfo
 {
   [JsonPropertyName("access")]
+  [JsonRequired]
   public Dictionary<string, string> Access { get; init; } = new();
   [JsonPropertyName("options")]
   public Dictionary<string, string> Options { get; init; } = new();

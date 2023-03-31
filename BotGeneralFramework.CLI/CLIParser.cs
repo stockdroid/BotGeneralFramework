@@ -3,6 +3,7 @@ namespace BotGeneralFramework.CLI;
 using BotGeneralFramework.Structs.CLI;
 using BotGeneralFramework.Records.CLI;
 using Fastenshtein;
+using System.Text.Json;
 
 public static class CLIParser
 {
@@ -222,4 +223,45 @@ public static class CLIParser
       }
     );
   }
+  public static string RequestParameter(string name, string? defaultValue = null)
+  {
+    if (defaultValue is null) Console.Write($"{name}: ");
+    else Console.Write($"{name} [{defaultValue}]: ");
+    var input = Console.ReadLine();
+    input = input != "" ? input : defaultValue;
+
+    return input ?? RequestParameter(name, defaultValue);
+  }
+  public static ConfigFile CreateConfig()
+  {
+    // Gather the info of the bot
+    var name = CLIParser.RequestParameter("Name of the bot");
+    var author = CLIParser.RequestParameter("Author of the bot");
+    var version = CLIParser.RequestParameter("Version of the bot", "1.0.0");
+    var description = CLIParser.RequestParameter("Description of the bot", "");
+    var license = CLIParser.RequestParameter("License of the bot", "MIT");
+    var repository = CLIParser.RequestParameter("Repository of the bot", "");
+
+    // Create a new config
+    return new()
+    {
+      Platforms = new(),
+      Bot = new()
+      {
+        Author = author,
+        Name = name,
+        Version = version,
+        Description = description,
+        License = license,
+        Repository = repository
+      },
+      Options = new()
+      {
+        { "exampleOption", "exampleValue" }
+      }
+    };
+  }
+  public static ConfigFile GetParsedConfig(string configPath) =>
+    JsonSerializer.Deserialize<ConfigFile>(File.ReadAllText(configPath)) ??
+    throw new InvalidOperationException("The config file is invalid");
 }

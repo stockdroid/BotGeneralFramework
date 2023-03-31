@@ -16,6 +16,21 @@ public sealed class App
   private readonly Dictionary<string, List<Middleware>> events = new();
   private readonly List<Middleware> middlewares = new();
   private readonly Context context;
+  public const string TYPESCRIPT_TYPES = """
+  interface Context {
+    [key: string]: any;
+  }
+  type Middleware = (ctx: Context, next: () => void) => void;
+  type Event = string;
+  
+  interface App {
+    use(middleware: Middleware[]): App;
+    on(event: Event, ...middlewares: Middleware[]): App;
+    trigger(event: Event, ctx: Context): App;
+    register(...bots: any[]): App;
+  }
+  declare const app: App;
+  """;
 
   private Action<int> runMiddlewares(dynamic ctx)
   {
