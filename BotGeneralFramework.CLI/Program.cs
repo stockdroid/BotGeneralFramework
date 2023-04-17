@@ -56,7 +56,7 @@ new Argument
   Action = (args, current) =>
   {
     var path = args.Pop();
-    
+
     // Create the directory
     Directory.CreateDirectory(path);
 
@@ -87,6 +87,59 @@ new Argument
     return current;
   },
   Description = "Initialize a new project."
+},
+new Argument
+{
+  Name = "project",
+  LongForm = "project",
+  ShortForm = "p",
+  Validator = (args) =>
+  {
+    if (!args.Any()) return (false, "No path specified.");
+
+    // Get the path from the arguments and check if it's valid
+    var path = args.Peek();
+    if (path.StartsWith("-")) return (false, $"The path {path} is not valid.");
+
+    // Get the directory info
+    var directory = new DirectoryInfo(path);
+
+    // Check if the directory exists
+    if (!directory.Exists) return (false, $"The path {directory.Name} does not exist.");
+    
+    // Get the config path
+    var configPath = Path.Combine(path, "botconfig.json");
+
+    // Check if the config file exists
+    if (!File.Exists(configPath)) return (false, $"The config file {configPath} does not exist.");
+
+    // Get the main module path
+    var mainModulePath = Path.Combine(path, "bot.js");
+
+    // Check if the main module exists
+    if (!File.Exists(mainModulePath)) return (false, $"The main module {mainModulePath} does not exist.");
+    
+    return (true, null);
+  },
+  Action = (args, current) =>
+  {
+    var path = args.Pop();
+
+    // Get the typings path
+    var typingsPath = Path.Combine(path, "types.d.ts");
+
+    // Check if the typings file exists
+    if (!File.Exists(typingsPath)) File.WriteAllText(typingsPath, TypeScript.GetTypes());;
+
+    // Set the config path
+    current.ConfigPath = Path.Combine(path, "botconfig.json");
+
+    // Set the main module path
+    current.MainModule = Path.Combine(path, "bot.js");
+
+    return current;
+  },
+  Description = "Set the project path."
 });
 var options = CLIParser.Parse(args);
 

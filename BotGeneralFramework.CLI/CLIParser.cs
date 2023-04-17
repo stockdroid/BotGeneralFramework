@@ -69,16 +69,16 @@ public static class CLIParser
     if (!arg.StartsWith("-") && !arg.StartsWith("--"))
     {
       // If it's not a flag or option, assume it's a script filename
-      if (current.MainModule is null)
-      {
-        args.Push(arg);
-        arg = "--script";
-      }
-      else
-      {
-        // If the current module has already been set, this is an error
-        throw new ArgumentException($"Unexpected argument: {arg}, did you mean to use --{arg}?");
-      }
+      args.Push(arg);
+
+      // If the argument ends with .js, assume it's a script
+      if (current.MainModule is null && arg.EndsWith(".js")) arg = "--script";
+      // If the argument ends with .json, assume it's a config file
+      else if (arg.EndsWith(".json")) arg = "--config";
+      // If the argument is a directory, assume it's a project
+      else if (current.MainModule is null && Directory.Exists(arg)) arg = "--project";
+      // Otherwise, it's an error
+      else throw new ArgumentException($"Unexpected argument: {arg}, did you mean to use --{arg}?");
     }
 
     // Get the argument object that corresponds to the current command-line argument
