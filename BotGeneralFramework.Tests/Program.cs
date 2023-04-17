@@ -24,4 +24,4 @@ app.on("ready", (ctx, next) => {
 });
 """);
 
-app.trigger("ready", new Context(){ { "test", "1234" } });
+app.trigger("ready", new() { { "test", "1234" } });

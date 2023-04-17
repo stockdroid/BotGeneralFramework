@@ -1,5 +1,6 @@
 namespace BotGeneralFramework.Core;
 using BotGeneralFramework.Interfaces.Core;
+using BotGeneralFramework.Delegates.Core;
 
 /// <summary>
 /// The app class
@@ -8,29 +9,12 @@ using BotGeneralFramework.Interfaces.Core;
 /// This is is the main class of the framework.
 /// It is used to register bots, and to register event middlewares.
 /// </remarks>
-public sealed class App
+public sealed class App: IApp
 {
-  public delegate void Middleware(dynamic ctx, Action next);
-
   private readonly List<IBot> runningBots = new();
   private readonly Dictionary<string, List<Middleware>> events = new();
   private readonly List<Middleware> middlewares = new();
   private readonly Context context;
-  public const string TYPESCRIPT_TYPES = """
-  interface Context {
-    [key: string]: any;
-  }
-  type Middleware = (ctx: Context, next: () => void) => void;
-  type Event = string;
-  
-  interface App {
-    use(middleware: Middleware[]): App;
-    on(event: Event, ...middlewares: Middleware[]): App;
-    trigger(event: Event, ctx: Context): App;
-    register(...bots: any[]): App;
-  }
-  declare const app: App;
-  """;
 
   private Action<int> runMiddlewares(dynamic ctx)
   {
@@ -63,23 +47,15 @@ public sealed class App
     return loop;
   }
 
-  /// <summary>
-  /// Can be used to register new bots on the current app
-  /// </summary>
-  /// <param name="bots">The bots to register</param>
-  /// <returns>The app</returns>
-  public App register(params IBot[] bots)
+  public IApp register(params IBot[] bots)
   {
-    this.runningBots.AddRange(bots);
+    runningBots.AddRange(bots.Select(x => {
+      x.App = this;
+      return x;
+    }));
     return this;
   }
-  /// <summary>
-  /// Register an event middleware on the current app
-  /// </summary>
-  /// <param name="eventName">The event name</param>
-  /// <param name="callbacks">The callbacks to register</param>
-  /// <returns>The app</returns>
-  public App on(string eventName, params Middleware[] callbacks)
+  public IApp on(string eventName, params Middleware[] callbacks)
   {
     // If the event does not exist, create it, and add the callbacks to the list.
     if (!this.events.ContainsKey(eventName))
@@ -94,22 +70,12 @@ public sealed class App
           this.events[eventName].AddRange(callbacks);
     return this;
   }
-  /// <summary>
-  /// Register a middleware on the current app
-  /// </summary>
-  /// <param name="middlewares">The middlewares to register</param>
-  /// <returns>The app</returns>
-  public App use(params Middleware[] middlewares)
+  public IApp use(params Middleware[] middlewares)
   {
     this.middlewares.AddRange(middlewares);
     return this;
   }
-  /// <summary>
-  /// Trigger an event on the current app
-  /// </summary>
-  /// <param name="eventName">The event name</param>
-  /// <param name="context">The context</param>
-  public void trigger(string eventName, Context context)
+  public void trigger(string eventName, Dictionary<string, object?>? context)
   {
     // Create a new context with the current context and the new context.
     dynamic ctx = this.context.Concat(context).ToExpandoObject();
@@ -119,6 +85,11 @@ public sealed class App
     // If the event does exist, first call all the middlewares, then call all the callbacks.
     runMiddlewares(ctx)(0);
     runEventMiddlewares(eventName, ctx)(0);
+  }
+  public void ready()
+  {
+    runningBots.ForEach(x => x.ready());
+    trigger("ready", new());
   }
 
   /// <summary>

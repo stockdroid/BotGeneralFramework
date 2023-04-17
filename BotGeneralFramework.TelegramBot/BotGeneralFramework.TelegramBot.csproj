@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Telegram.Bot" Version="18.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BotGeneralFramework.Types\BotGeneralFramework.Types.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.Core\BotGeneralFramework.Core.csproj" />
+  </ItemGroup>
+
 </Project>

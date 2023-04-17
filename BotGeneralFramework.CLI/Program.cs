@@ -1,9 +1,9 @@
 ﻿using BotGeneralFramework.CLI;
 using BotGeneralFramework.Structs.CLI;
-using BotGeneralFramework.Records.CLI;
 using System.Text.Json;
 using BotGeneralFramework.Core;
 using BotGeneralFramework.Runtime;
+using BotGeneralFramework.TelegramBot;
 
 CLIParser.AddArguments(new Argument
 {
@@ -90,7 +90,7 @@ new Argument
 },
 new Argument
 {
-  Name = "project",
+  Name = "Project",
   LongForm = "project",
   ShortForm = "p",
   Validator = (args) =>
@@ -151,11 +151,18 @@ if (!result)
   return 1;
 }
 
-var engine = new Engine(CLIParser.GetParsedConfig(options.ConfigPath), options);
-engine.Run(
+var config = CLIParser.GetParsedConfig(options.ConfigPath);
+
+var engine = new Engine(config, options);
+
+var app = engine.Run(
   new FileInfo(options.MainModule!)
-).trigger("ready", new Context());
+);
 
+if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
+  app.register(
+    new TelegramBot(telegramConfig)
+  );
 
-
+app.ready();
 return 0;

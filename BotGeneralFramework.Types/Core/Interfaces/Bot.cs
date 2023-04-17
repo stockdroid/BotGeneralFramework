@@ -1,3 +1,4 @@
+using BotGeneralFramework.Interfaces.Core;
 namespace BotGeneralFramework.Interfaces.Core;
 
 /// <summary>
@@ -8,8 +9,12 @@ public interface IBot
   /// <summary>
   /// The name of the api platform used by this bot
   /// </summary>
-  public string? PlatformAPI { get; set; }
-  
+  public string? PlatformAPI { get; }
+  /// <summary>
+  /// The app
+  /// </summary>
+  public IApp? App { set; }
+
   /// <summary>
   /// Send a message to a chat
   /// </summary>
@@ -23,4 +28,8 @@ public interface IBot
   /// <param name="text">The text to send</param>
   /// <returns>The message that was sent</returns>
   public IMessage sendText(IChat chat, string text);
+  /// <summary>
+  /// Trigger the ready
+  /// </summary>
+  public Task ready();
 }

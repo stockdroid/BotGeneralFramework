@@ -5,3 +5,5 @@ obj/
 test/
 .DS_STORE
 .MACOSX
+devenv.sh
+*.swp

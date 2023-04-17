@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BotGeneralFramework.Core\BotGeneralFramework.Core.csproj" />
     <ProjectReference Include="..\BotGeneralFramework.Types\BotGeneralFramework.Types.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.TelegramBot\BotGeneralFramework.TelegramBot.csproj" />
   </ItemGroup>
 
 </Project>

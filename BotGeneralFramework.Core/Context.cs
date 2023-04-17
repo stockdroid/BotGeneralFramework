@@ -11,7 +11,7 @@ public sealed class Context : IDictionary<string, object?>
 {
   private readonly Dictionary<string, object?> context;
 
-  public static implicit operator Context(Dictionary<string, object?> context)
+  public static explicit operator Context(Dictionary<string, object?> context)
   {
     return new Context(context);
   }
@@ -101,7 +101,23 @@ public sealed class Context : IDictionary<string, object?>
   {
     return context;
   }
-
+  
+  /// <summary>
+  /// Concatenate the context with another context
+  /// </summary>
+  /// <param name="context">The context to concatenate</param>
+  /// <returns>The concatenated context</returns>
+  /// <exception cref="ArgumentNullException">Thrown when the context is null</exception>
+  public Context Concat(Dictionary<string, object?>? context)
+  {
+    if (context is null) return this;
+    return new(context.Concat(this.context.Where(
+        pair => !context.ContainsKey(pair.Key)
+      )).ToDictionary(
+      pair => pair.Key,
+      pair => pair.Value
+    ));
+  }
   /// <summary>
   /// Concatenate the context with another context
   /// </summary>
@@ -111,12 +127,12 @@ public sealed class Context : IDictionary<string, object?>
   public Context Concat(Context context)
   {
     if (context is null) throw new ArgumentNullException(nameof(context));
-    return context.Concat(this.context.Where(
+    return new(context.Concat(this.context.Where(
       pair => !context.ContainsKey(pair.Key)
     )).ToDictionary(
       pair => pair.Key,
       pair => pair.Value
-    );
+    ));
   }
 
   public Context(Dictionary<string, object?>? context = null)
