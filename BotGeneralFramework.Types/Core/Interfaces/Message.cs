@@ -18,6 +18,12 @@ public interface IMessage
   /// </summary>
   public IContent[]? Content { get; }
 
-  public bool delete();
-  public IMessage edit();
+  /// <summary>
+  /// Delete this message
+  /// <summary>
+  public Task<bool> delete();
+  /// <summary>
+  /// Edit this message
+  /// <summary>
+  public Task<IMessage?> edit(string text);
 }

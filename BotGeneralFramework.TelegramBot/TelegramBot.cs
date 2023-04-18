@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 using BotGeneralFramework.Records.CLI.Config;
 
 namespace BotGeneralFramework.TelegramBot;
-public class TelegramBot : IBot
+public sealed class TelegramBot : IBot
 {
   public string? PlatformAPI { get; } = "Telegram";
   public IApp? App { private get; set; }
@@ -24,7 +24,8 @@ public class TelegramBot : IBot
       App.trigger("message", new()
       {
         { "bot", bot },
-        { "platformMessage", update.Message! }
+        { "platformMessage", update.Message! },
+        { "message", new TelegramMessage(update.Message!, bot) }
       });
     return Task.CompletedTask;
   }
