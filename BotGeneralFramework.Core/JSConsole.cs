@@ -5,16 +5,18 @@ public sealed class JSConsole
 {
   public Options options { get; private init; }
 
-  public JSConsole(Options options)
-  {
+  public JSConsole(Options options) =>
     this.options = options;
-  }
 
   public void log(params object[] args)
   {
     if (!options.Verbose) return;
 
     var oldColor = Console.ForegroundColor;
+    var timestamp = DateTime.Now;
+
+    Console.ForegroundColor = ConsoleColor.DarkGray;
+    Console.Write($"{timestamp} ");
     Console.ForegroundColor = ConsoleColor.White;
     Console.Write("[");
     Console.ForegroundColor = ConsoleColor.Green;

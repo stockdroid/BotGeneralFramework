@@ -30,4 +30,8 @@ public interface IApp
   /// Trigger the ready event
   /// </summary>
   public void ready();
+  /// <summary>
+  /// Terminate the application
+  /// </summary>
+  public Task stop();
 }

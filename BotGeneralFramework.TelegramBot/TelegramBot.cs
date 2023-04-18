@@ -10,6 +10,7 @@ public class TelegramBot : IBot
   public IApp? App { private get; set; }
   private TelegramBotClient Bot { get; set; }
   private PlatformInfo Info { get; set; }
+  private CancellationTokenSource Cancellation { get; set; }
 
   private Task OnUpdate(
     ITelegramBotClient bot,
@@ -17,6 +18,7 @@ public class TelegramBot : IBot
     CancellationToken token
   )
   {
+    if (token.IsCancellationRequested) return Task.CompletedTask;
     if (App is null) return Task.CompletedTask;
     if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
       App.trigger("message", new()
@@ -32,6 +34,7 @@ public class TelegramBot : IBot
     CancellationToken token
   )
   {
+    if (token.IsCancellationRequested) return Task.CompletedTask;
     throw new NotImplementedException();
   }
 
@@ -54,13 +57,20 @@ public class TelegramBot : IBot
     });
     return Task.CompletedTask;
   }
+  public Task stop()
+  {
+    Cancellation.Cancel();
+    if (App is not null) App.trigger("telegramTerminated", new());
+    return Task.CompletedTask;
+  }
 
   public TelegramBot(PlatformInfo config)
   {
     Bot = new(
       config.Access["token"]
     );
-    Bot.StartReceiving(OnUpdate, OnError);
+    Cancellation = new CancellationTokenSource();
+    Bot.StartReceiving(OnUpdate, OnError, cancellationToken: Cancellation.Token);
     Info = config;
   }
 }

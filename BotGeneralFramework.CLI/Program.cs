@@ -5,6 +5,8 @@ using BotGeneralFramework.Core;
 using BotGeneralFramework.Runtime;
 using BotGeneralFramework.TelegramBot;
 
+var cancellationToken = new CancellationToken();
+
 CLIParser.AddArguments(new Argument
 {
   Name = "Info",
@@ -158,6 +160,20 @@ var engine = new Engine(config, options);
 var app = engine.Run(
   new FileInfo(options.MainModule!)
 );
+var console = engine.InitConsole(cancellationToken);
+
+app.on("cli.command", (ctx, next) => {
+  if (ctx.command != "info") { next(); return; }
+  Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
+  ctx.done = true;
+  next();
+});
+app.on("cli.command", (ctx, next) => {
+  if (ctx.command != "exit") { next(); return; }
+  app.stop();
+  Console.WriteLine("Bye 👋");
+  Environment.Exit(0);
+});
 
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
@@ -165,4 +181,6 @@ if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   );
 
 app.ready();
+console.Start();
+await Task.Delay(-1);
 return 0;

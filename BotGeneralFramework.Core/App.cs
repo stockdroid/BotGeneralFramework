@@ -91,6 +91,8 @@ public sealed class App: IApp
     runningBots.ForEach(x => x.ready());
     trigger("ready", new());
   }
+  public Task stop() =>
+    Task.WhenAll(runningBots.Select(x => x.stop()));
 
   /// <summary>
   /// The app constructor

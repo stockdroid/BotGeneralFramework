@@ -43,4 +43,34 @@ public sealed class Engine
 
     return app;
   }
+  public Thread InitConsole(CancellationToken token) => new(() => {
+    app.on("cli.command", (ctx, next) => {
+      if (ctx.done == true) return;
+      Console.WriteLine(
+        $"Command '{ctx.command}' not found."
+      );
+    });
+
+    while (!token.IsCancellationRequested)
+    {
+      Console.Write($"botgf@${config.Bot.Name}$ ");
+      var curleft = Console.CursorLeft;
+      var input = Console.ReadLine();
+
+      if (input is null) continue;
+      if (input is "") continue;
+
+      input = input.Replace("\u001B", "");
+
+      var commandList = input.Split(' ');
+      var commandName = commandList.First();
+
+      app.trigger("cli.command", new() {
+        { "command", commandName },
+        { "arguments", commandList.Skip(1) },
+        { "done", false },
+        { "respond", (string message) => Console.WriteLine(message) }
+      });
+    }
+  });
 }

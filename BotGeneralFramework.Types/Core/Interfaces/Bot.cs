@@ -32,4 +32,8 @@ public interface IBot
   /// Trigger the ready
   /// </summary>
   public Task ready();
+  /// <summary>
+  /// Terminate bot
+  /// </summary>
+  public Task stop();
 }
