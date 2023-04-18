@@ -32,6 +32,10 @@ public sealed class JSConsole
   public void warn(params object[] args)
   {
     var oldColor = Console.ForegroundColor;
+    var timestamp = DateTime.Now;
+
+    Console.ForegroundColor = ConsoleColor.DarkGray;
+    Console.Write($"{timestamp} ");
     Console.ForegroundColor = ConsoleColor.White;
     Console.Write("[");
     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -47,6 +51,10 @@ public sealed class JSConsole
   public void error(params object[] args)
   {
     var oldColor = Console.ForegroundColor;
+    var timestamp = DateTime.Now;
+
+    Console.ForegroundColor = ConsoleColor.DarkGray;
+    Console.Write($"{timestamp} ");
     Console.ForegroundColor = ConsoleColor.White;
     Console.Write("[");
     Console.ForegroundColor = ConsoleColor.Red;

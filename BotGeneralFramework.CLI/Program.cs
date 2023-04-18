@@ -181,6 +181,6 @@ if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   );
 
 app.ready();
-console.Start();
+//console.Start();
 await Task.Delay(-1);
 return 0;
