@@ -2,6 +2,7 @@
 using BotGeneralFramework.Interfaces.Core;
 using Telegram.Bot.Types;
 using BotGeneralFramework.Records.CLI.Config;
+using BotGeneralFramework.Core;
 
 namespace BotGeneralFramework.TelegramBot;
 public sealed class TelegramBot : IBot
@@ -11,32 +12,41 @@ public sealed class TelegramBot : IBot
   private TelegramBotClient Bot { get; set; }
   private PlatformInfo Info { get; set; }
   private CancellationTokenSource Cancellation { get; set; }
+  private TaskQueue Queue { get; set; }
 
-  private Task OnUpdate(
+  private async Task OnUpdate(
     ITelegramBotClient bot,
     Update update,
     CancellationToken token
   )
   {
-    if (token.IsCancellationRequested) return Task.CompletedTask;
-    if (App is null) return Task.CompletedTask;
-    if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+    await Task.CompletedTask;
+    if (token.IsCancellationRequested) return;
+    if (App is null) return;
+    if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message &&
+        update.Message is not null)
       App.trigger("message", new()
       {
         { "bot", bot },
         { "platformMessage", update.Message! },
-        { "message", new TelegramMessage(update.Message!, bot) }
+        { "message", new TelegramMessage(update.Message, bot) },
+        { "replyMsg", new TelegramMessage(
+          await bot.SendTextMessageAsync(
+            update.Message.Chat, "⏳ <b>Loading...</b>",
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+          ), bot
+        ) }
       });
-    return Task.CompletedTask;
   }
-  private Task OnError(
+  private async Task OnError(
     ITelegramBotClient bot,
     Exception error,
     CancellationToken token
   )
   {
-    if (token.IsCancellationRequested) return Task.CompletedTask;
-    throw new NotImplementedException();
+    await Task.CompletedTask;
+    if (token.IsCancellationRequested) return;
+    Console.WriteLine("EXCEPTION");
   }
 
   public IMessage sendText(dynamic options)
@@ -52,6 +62,7 @@ public sealed class TelegramBot : IBot
   {
     if (App is null) return Task.CompletedTask;
     
+    Queue.Ready(App);
     App.trigger("telegramReady", new() {
       { "config", Info },
       { "bot", Bot }
@@ -71,7 +82,12 @@ public sealed class TelegramBot : IBot
       config.Access["token"]
     );
     Cancellation = new CancellationTokenSource();
-    Bot.StartReceiving(OnUpdate, OnError, cancellationToken: Cancellation.Token);
     Info = config;
+    Queue = new("telegramTaskQueue", 5);
+    Bot.StartReceiving(
+      (bot, update, token) => Queue.EnqueueLowPriority(new Task(() => OnUpdate(bot, update, token).Wait())),
+      (bot, error, token) => Queue.EnqueueHighPriority(new Task(() => OnError(bot, error, token).Wait())),
+      cancellationToken: Cancellation.Token
+    );
   }
 }
