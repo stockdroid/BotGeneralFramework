@@ -16,6 +16,12 @@ public sealed class App: IApp
   private readonly List<Middleware> middlewares = new();
   private readonly Context context;
 
+  private void callAndCatchMiddleware(dynamic ctx, Action next, Middleware middleware)
+  {
+    try { middleware(ctx, next); }
+    catch(Exception e) { Console.WriteLine($"Exception while running a middleware: {e}"); }
+  }
+
   private Action<int> runMiddlewares(dynamic ctx)
   {
     Action<int>? loop = null;
@@ -23,9 +29,10 @@ public sealed class App: IApp
     loop = (int index) => {
       var next = () => loop!(++index);
       if (index >= middlewaresCount) return;
-      middlewares.ElementAt(index)(
+      callAndCatchMiddleware(
         ctx,
-        next
+        next,
+        middlewares.ElementAt(index)
       );
     };
     return loop;
@@ -38,9 +45,10 @@ public sealed class App: IApp
     loop = (int index) => {
       var next = () => loop!(++index);
       if (index >= middlewaresCount) return;
-      middlewares.ElementAt(index)(
+      callAndCatchMiddleware(
         ctx,
-        next
+        next,
+        middlewares.ElementAt(index)
       );
     };
 

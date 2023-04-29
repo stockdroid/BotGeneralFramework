@@ -5,6 +5,7 @@ public sealed record Options
 {
   private readonly CachedProperty<string> _configPath = Cache.createCache<string>(true, "./botconfig.json");
   private readonly CachedProperty<string> _mainModule = Cache.createCache<string>(true);
+  private readonly CachedProperty<string> _projectPath = Cache.createCache<string>(true);
   private readonly CachedProperty<bool> _parsed = Cache.createCacheUnmanaged<bool>(false, false);
   
   public bool Parsed { get => _parsed.getter()!; set => _parsed.setter(value); }
@@ -39,4 +40,10 @@ public sealed record Options
     get => _mainModule.getter();
     set => _mainModule.setter(value);
   }
+  public string ProjectPath => 
+    _projectPath.getter() ??
+    _projectPath.setter(
+      Directory.GetParent(_mainModule.getter()!)!
+        .FullName
+    )!;
 }

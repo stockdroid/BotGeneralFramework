@@ -223,7 +223,7 @@ public static class CLIParser
       }
     );
   }
-  public static string RequestParameter(string name, string? defaultValue = null)
+  private static string RequestParameter(string name, string? defaultValue = null)
   {
     if (defaultValue is null) Console.Write($"{name}: ");
     else Console.Write($"{name} [{defaultValue}]: ");

@@ -17,7 +17,7 @@ public struct CachedProperty<T>
 /// </summary>
 public static class Cache 
 {
-  public delegate void CacheSetter<T>(T? value);
+  public delegate T? CacheSetter<T>(T? value);
   public delegate T? CacheGetter<T>();
 
   /// <summary>
@@ -40,7 +40,7 @@ public static class Cache
     CacheSetter<T> setter = value => {
       if (oneTimeSet && cache != null)
         throw new Exception("Cache already set");
-      cache = value;
+      return cache = value;
     };
     // this getter will be used by the chace initializer to implement the property
     CacheGetter<T> getter = () => {
@@ -78,6 +78,7 @@ public static class Cache
       if (oneTimeSet && cache != null)
         throw new Exception("Cache already set");
       cache = value;
+      return value;
     };
     // this getter will be used by the chace initializer to implement the property
     CacheGetter<T> getter = () => {

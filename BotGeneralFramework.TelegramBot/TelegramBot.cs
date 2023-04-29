@@ -14,6 +14,9 @@ public sealed class TelegramBot : IBot
   private CancellationTokenSource Cancellation { get; set; }
   private TaskQueue Queue { get; set; }
 
+  private bool AssertRun(CancellationToken token) => 
+    App is null || token.IsCancellationRequested;
+
   private async Task OnUpdate(
     ITelegramBotClient bot,
     Update update,
@@ -21,22 +24,21 @@ public sealed class TelegramBot : IBot
   )
   {
     await Task.CompletedTask;
-    if (token.IsCancellationRequested) return;
-    if (App is null) return;
+    if (AssertRun(token)) return;
     if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message &&
-        update.Message is not null)
-      App.trigger("message", new()
-      {
-        { "bot", bot },
-        { "platformMessage", update.Message! },
-        { "message", new TelegramMessage(update.Message, bot) },
-        { "replyMsg", new TelegramMessage(
-          await bot.SendTextMessageAsync(
-            update.Message.Chat, "⏳ <b>Loading...</b>",
-            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
-          ), bot
-        ) }
-      });
+      update.Message is not null)
+    App!.trigger("message", new()
+    {
+      { "bot", this },
+      { "platformMessage", update.Message! },
+      { "message", new TelegramMessage(update.Message, bot) },
+      { "replyMsg", new TelegramMessage(
+        await bot.SendTextMessageAsync(
+          update.Message.Chat, "⏳ <b>Loading...</b>",
+          parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+        ), bot
+      ) }
+    });
   }
   private async Task OnError(
     ITelegramBotClient bot,
