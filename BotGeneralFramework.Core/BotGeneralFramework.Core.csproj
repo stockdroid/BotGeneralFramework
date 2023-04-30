@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Fastenshtein" Version="1.0.0.8" />
     <PackageReference Include="Jint" Version="3.0.0-beta-2048" />
+    <PackageReference Include="Pastel" Version="4.1.0" />
   </ItemGroup>
 
   <PropertyGroup>

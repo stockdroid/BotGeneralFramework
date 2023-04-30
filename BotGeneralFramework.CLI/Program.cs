@@ -5,7 +5,7 @@ using BotGeneralFramework.Core;
 using BotGeneralFramework.Runtime;
 using BotGeneralFramework.TelegramBot;
 
-var cancellationToken = new CancellationToken();
+var tokenSource = new CancellationTokenSource();
 
 CLIParser.AddArguments(new Argument
 {
@@ -156,15 +156,20 @@ if (!result)
 var config = CLIParser.GetParsedConfig(options.ConfigPath);
 
 var engine = new Engine(config, options);
-
 var app = engine.Run(
   new FileInfo(options.MainModule!)
 );
-var console = engine.InitConsole(cancellationToken);
+var serviceConsole = engine.InitConsole();
 
 app.on("cli.command", (ctx, next) => {
   if (ctx.command != "info") { next(); return; }
   Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
+  ctx.done = true;
+  next();
+});
+app.on("cli.command", (ctx, next) => {
+  if (ctx.command != "cls" && ctx.command != "clear") { next(); return; }
+  Console.Clear();
   ctx.done = true;
   next();
 });
@@ -175,12 +180,18 @@ app.on("cli.command", (ctx, next) => {
   Environment.Exit(0);
 });
 
+app.on("cli.command", (ctx, next) => {
+  if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
+});
+
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)
   );
 
+Console.Clear();
+
+serviceConsole.Start(tokenSource.Token);
 app.ready();
-//console.Start();
 await Task.Delay(-1);
 return 0;
