@@ -14,6 +14,7 @@ public sealed class Engine
     using var engine = new Jint.Engine();
     engine.SetValue("exports", new Jint.Native.JsObject(jsEngine));
     engine.SetValue("require", Require);
+    engine.SetValue("console", console);
     FileInfo module = new(
       Path.Combine(options.ProjectPath, path)
     );
