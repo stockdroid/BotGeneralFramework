@@ -2,11 +2,12 @@ namespace BotGeneralFramework.Core;
 using Pastel;
 using Types = BotGeneralFramework.Records.CLI;
 using BotGeneralFramework.Interfaces.Core;
+using System.Runtime.InteropServices;
 
 public sealed class ServiceConsole
 {
-  private int _consoleTop;
   private string _buffer = "";
+  private string _suggestionBuffer = "";
   private readonly string _prompt;
 
   public Types.Options Options { get; private init; }
@@ -23,6 +24,42 @@ public sealed class ServiceConsole
     //if (Console.GetCursorPosition().Top != _consoleTop) { ShowPrompt(); _consoleTop = Console.CursorTop; }
     return Console.ReadKey(intercept: true);
   }
+  private void HandleBackSpace()
+  {
+    if (_buffer.Length == 0) return;
+    var cursor = --Console.CursorLeft;
+    _buffer = _buffer.Remove(_buffer.Length - 1);
+    _suggestionBuffer = "";
+    Console.CursorVisible = false;
+    Console.Write(new String(' ', Console.BufferWidth - _buffer.Length - _prompt.Length));
+    Console.CursorVisible = true;
+    Console.CursorLeft = cursor;
+  }
+  private void HandleTab()
+  {
+    if (_suggestionBuffer.Length == 0) return;
+    Console.Write(_suggestionBuffer);
+    _buffer += _suggestionBuffer;
+  }
+  private void HandleKeyPress(ConsoleKeyInfo key)
+  {
+    Console.Write(key.KeyChar);
+    _buffer += key.KeyChar;
+    _suggestionBuffer = "";
+    App.trigger("cli.input", new()
+    {
+      { "input", _buffer },
+      {
+        "suggest",
+        (string suggestion) =>
+        {
+          Console.Write(suggestion.Pastel(ConsoleColor.DarkCyan));
+          Console.CursorLeft -= suggestion.Length;
+          _suggestionBuffer = suggestion;
+        }
+      }
+    });
+  }
   private void HandleCommand()
   {
     Console.Out.NewLine = "\n";
@@ -38,7 +75,7 @@ public sealed class ServiceConsole
     if (Console.CursorTop > 0)
     {
       Console.CursorLeft = 0;
-      Console.Write(new String(' ', Console.BufferWidth-1));
+      Console.Write(new String(' ', Console.BufferWidth - 1));
       Console.CursorTop--;
       Console.WriteLine();
     }
@@ -46,12 +83,15 @@ public sealed class ServiceConsole
 
     Console.WriteLine($"{commandName.Pastel(ConsoleColor.Cyan)}:");
 
-    App.trigger("cli.command", new() {
+    App.trigger("cli.command", new()
+    {
       { "command", commandName },
       { "done", false },
       { "args", _buffer.Substring(nameStop+1).Split(' ') },
       { "respond", (string msg) => Console.WriteLine(msg) }
     });
+
+    Console.WriteLine(new String('-', Console.BufferWidth - 1).Pastel(ConsoleColor.DarkGray));
 
     if (Console.CursorTop > 0) Console.CursorTop--;
     ShowPrompt();
@@ -69,25 +109,30 @@ public sealed class ServiceConsole
     App = app;
   }
 
-  public void Start(CancellationToken token) => new Task(() => {
+  public void Start(CancellationToken token) => new Task(() =>
+  {
     ShowPrompt();
-    _consoleTop = Console.GetCursorPosition().Top;
     while (!token.IsCancellationRequested)
     {
       var key = WaitForKey(token);
       switch (key.Key)
       {
         case ConsoleKey.Backspace:
-          if (_buffer.Length == 0) break;
-          Console.Write("\b \b");
-          _buffer = _buffer.Remove(_buffer.Length-1);
+          HandleBackSpace();
           break;
         case ConsoleKey.Enter:
           HandleCommand();
           break;
-        default: 
-          Console.Write(key.KeyChar);
-          _buffer += key.KeyChar;
+        case ConsoleKey.Tab:
+          HandleTab();
+          break;
+        case ConsoleKey.UpArrow:
+        case ConsoleKey.DownArrow:
+        case ConsoleKey.RightArrow:
+        case ConsoleKey.LeftArrow:
+          break;
+        default:
+          HandleKeyPress(key);
           break;
       }
     }

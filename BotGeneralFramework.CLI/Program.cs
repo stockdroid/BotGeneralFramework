@@ -184,6 +184,23 @@ app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
 
+app.on("cli.input", (ctx, next) => {
+  if (!"info".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("info".Substring(ctx.input.Length));
+});
+app.on("cli.input", (ctx, next) => {
+  if (!"exit".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("exit".Substring(ctx.input.Length));
+});
+app.on("cli.input", (ctx, next) => {
+  if (!"cls".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("cls".Substring(ctx.input.Length));
+});
+app.on("cli.input", (ctx, next) => {
+  if (!"clear".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("clear".Substring(ctx.input.Length));
+});
+
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)
