@@ -15,6 +15,7 @@ public sealed class Engine
     engine.SetValue("exports", new Jint.Native.JsObject(jsEngine));
     engine.SetValue("require", Require);
     engine.SetValue("console", console);
+    engine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
     FileInfo module = new(
       Path.Combine(options.ProjectPath, path)
     );
@@ -44,6 +45,7 @@ public sealed class Engine
     jsEngine.SetValue("options", options);
     jsEngine.SetValue("config", config);
     jsEngine.SetValue("require", Require);
+    jsEngine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
   }
 
   public App Run(FileInfo script)

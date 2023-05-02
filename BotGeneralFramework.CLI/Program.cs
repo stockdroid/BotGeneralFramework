@@ -156,10 +156,7 @@ if (!result)
 var config = CLIParser.GetParsedConfig(options.ConfigPath);
 
 var engine = new Engine(config, options);
-var app = engine.Run(
-  new FileInfo(options.MainModule!)
-);
-var serviceConsole = engine.InitConsole();
+var app = engine.app;
 
 app.on("cli.command", (ctx, next) => {
   if (ctx.command != "info") { next(); return; }
@@ -180,10 +177,6 @@ app.on("cli.command", (ctx, next) => {
   Environment.Exit(0);
 });
 
-app.on("cli.command", (ctx, next) => {
-  if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
-});
-
 app.on("cli.input", (ctx, next) => {
   if (!"info".StartsWith(ctx.input)) { next(); return; }
   ctx.suggest("info".Substring(ctx.input.Length));
@@ -199,6 +192,15 @@ app.on("cli.input", (ctx, next) => {
 app.on("cli.input", (ctx, next) => {
   if (!"clear".StartsWith(ctx.input)) { next(); return; }
   ctx.suggest("clear".Substring(ctx.input.Length));
+});
+
+app = engine.Run(
+  new FileInfo(options.MainModule!)
+);
+var serviceConsole = engine.InitConsole();
+
+app.on("cli.command", (ctx, next) => {
+  if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
 
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
