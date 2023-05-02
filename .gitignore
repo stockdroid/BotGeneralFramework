@@ -2,7 +2,7 @@
 bin/
 obj/
 .vscode/
-test/
+test*/
 .DS_STORE
 .MACOSX
 devenv.sh

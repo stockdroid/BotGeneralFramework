@@ -65,7 +65,7 @@ public sealed class TelegramBot : IBot
     if (App is null) return Task.CompletedTask;
     
     Queue.Ready(App);
-    App.trigger("telegramReady", new() {
+    App.trigger("telegram.ready", new() {
       { "config", Info },
       { "bot", Bot }
     });
@@ -74,7 +74,7 @@ public sealed class TelegramBot : IBot
   public Task stop()
   {
     Cancellation.Cancel();
-    if (App is not null) App.trigger("telegramTerminated", new());
+    if (App is not null) App.trigger("telegram.terminated", new());
     return Task.CompletedTask;
   }
 
