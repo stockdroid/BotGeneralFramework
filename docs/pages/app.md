@@ -66,7 +66,7 @@ The `ctx` parameter contains:
   - bot: It is the [bot instance](./bot.md)
   - config: It is the platform information used to initialize the current platform
 
-##### [platformName].terminate
+##### [platformName].terminated
 This event is fired when a particular platform is terminated and has stopped listening for updates.
 ```javascript
 app.on("telegram.terminated", (ctx, next) => {
@@ -79,10 +79,11 @@ app.on("telegram.terminated", (ctx, next) => {
 This event is triggered when one of the platforms listening to updates receives a new message
 ```javascript
 app.on("message", (ctx, next) => {
-  // perform some operations with the message
+  // perform some operations
   return next();
 });
 ```
 The `ctx` parameter contains:
   - bot: It is the [bot instance](./bot.md)
-  - config: It is the platform information used to initialize the current platform
+  - message: It is the [message](./message.md) that triggered the event
+  - replyMsg: It is the [message](./message.md) that was sent while waiting the bot response, it might be null for some platforms
