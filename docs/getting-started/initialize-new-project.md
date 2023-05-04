@@ -60,10 +60,10 @@ After the initialization of the project this file should look like this:
   "platforms": {},
   "bot": {
     "version": "1.0.0",
-    "name": "testold",
-    "author": "n",
+    "name": "hello-world",
+    "author": "Nicola Leone Ciardi",
     "description": "",
-    "license": "MIT",
+    "license": "GNU-GPL",
     "repository": ""
   },
   "options": {

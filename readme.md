@@ -1,6 +1,8 @@
 # Bot General Framework
 This is a <b>general purpose bot framework</b> that aims at generalizing and simplyfying <b>bot frameworks</b>.
 
+Go to the [documentation](docs/index.md) to know more on how to set up the framework for your own
+
 ## Cross compatibility
 One of `bot general framework`'s objective is to generalize bot components such that <b>one codebase can be written</b> for many platforms.
 
