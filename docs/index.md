@@ -4,6 +4,10 @@ Jump to the [getting started](getting-started/initialize-new-project.md) section
 
 ## Introduction
 
+BotGF is a framework based on .NET 7.0 and on Jint to deliver the speed of C# apis and the simplicity of JavaScript to your bots.
+<br/>
+**BotGF DOES NOT run on Node.JS!**
+
 BotGF aims to achieve three main goals:
 - Simple setup for developers
 - Out-of-the-box cross-compatibility
