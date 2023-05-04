@@ -9,16 +9,17 @@ public sealed class Engine
   public Jint.Engine jsEngine { get; private init; }
   public JSConsole console { get; private init; }
 
-  private Jint.Native.JsValue Require(string path)
+  private Jint.Native.JsValue Require(string __path__, string path)
   {
     using var engine = new Jint.Engine();
     engine.SetValue("exports", new Jint.Native.JsObject(jsEngine));
-    engine.SetValue("require", Require);
+    engine.SetValue("require", (string requirePath) => Require(engine.GetValue("__path__").ToString(), requirePath));
     engine.SetValue("console", console);
     engine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
     FileInfo module = new(
-      Path.Combine(options.ProjectPath, path)
+      Path.Combine(Directory.GetParent(__path__)!.FullName, path)
     );
+    engine.SetValue("__path__", module.FullName);
     return engine.Execute(
       File.ReadAllText(module.FullName),
       module.FullName
@@ -44,8 +45,8 @@ public sealed class Engine
     jsEngine.SetValue("app", app);
     jsEngine.SetValue("options", options);
     jsEngine.SetValue("config", config);
-    jsEngine.SetValue("require", Require);
-    jsEngine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
+    jsEngine.SetValue("require", (string requirePath) => Require(jsEngine.GetValue("__path__").ToString(), requirePath));
+    jsEngine.SetValue("eval", (string path) => Require(jsEngine.GetValue("__path__").ToString(), path));
   }
 
   public App Run(FileInfo script)
@@ -57,6 +58,8 @@ public sealed class Engine
     // close the stream
     stream.Close();
 
+    // set the __path__ variable
+    jsEngine.SetValue("__path__", script.FullName);
     // run the script
     jsEngine.Execute(scriptText, script.FullName);
 
