@@ -7,6 +7,7 @@ using BotGeneralFramework.TelegramBot;
 
 var tokenSource = new CancellationTokenSource();
 
+#region setup cli arguments
 CLIParser.AddArguments(new Argument
 {
   Name = "Info",
@@ -143,6 +144,8 @@ new Argument
   },
   Description = "Set the project path."
 });
+#endregion
+
 var options = CLIParser.Parse(args);
 
 // Assert the options
@@ -153,11 +156,14 @@ if (!result)
   return 1;
 }
 
+// Parse the config file
 var config = CLIParser.GetParsedConfig(options.ConfigPath);
 
+// Create the engine and the app
 var engine = new Engine(config, options);
 var app = engine.app;
 
+#region setup cli events on the app
 app.on("cli.command", (ctx, next) => {
   if (ctx.command != "info") { next(); return; }
   Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
@@ -193,24 +199,32 @@ app.on("cli.input", (ctx, next) => {
   if (!"clear".StartsWith(ctx.input)) { next(); return; }
   ctx.suggest("clear".Substring(ctx.input.Length));
 });
+#endregion
 
+// Run the bot script
 app = engine.Run(
   new FileInfo(options.MainModule!)
 );
+
+// Initialize the service console
 var serviceConsole = engine.InitConsole();
 
+// Add the event for an unknown command
 app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
 
+// Register the telegram platforms if
+// setup in the config
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)
   );
 
+// Start the app
 Console.Clear();
-
 serviceConsole.Start(tokenSource.Token);
 app.ready();
+
 await Task.Delay(-1);
 return 0;
