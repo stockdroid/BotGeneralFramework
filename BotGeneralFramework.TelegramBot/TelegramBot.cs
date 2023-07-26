@@ -25,20 +25,18 @@ public sealed class TelegramBot : IBot
   {
     await Task.CompletedTask;
     if (AssertRun(token)) return;
-    if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message &&
-      update.Message is not null)
-    App!.trigger("message", new()
-    {
-      { "bot", this },
-      { "platformMessage", update.Message! },
-      { "message", new TelegramMessage(update.Message, bot) },
-      { "replyMsg", new TelegramMessage(
-        await bot.SendTextMessageAsync(
-          update.Message.Chat, "⏳ <b>Loading...</b>",
-          parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
-        ), bot
-      ) }
-    });
+    if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message && update.Message is not null)
+      App!.trigger("message", new() {
+        { "bot", this },
+        { "platformMessage", update.Message! },
+        { "message", new TelegramMessage(update.Message, bot) },
+        { "replyMsg", new TelegramMessage(
+          await bot.SendTextMessageAsync(
+            update.Message.Chat, "⏳ <b>Loading...</b>",
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+          ), bot
+        ) }
+      });
   }
   private async Task OnError(
     ITelegramBotClient bot,
