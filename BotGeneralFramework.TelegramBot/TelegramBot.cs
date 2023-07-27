@@ -51,11 +51,24 @@ public sealed class TelegramBot : IBot
 
   public IMessage sendText(dynamic options)
   {
-    throw new NotImplementedException();
+    if (options.text is string text && options.chat is IChat chat) {
+      return new TelegramMessage(
+        Bot.SendTextMessageAsync(chat.Id, text, Telegram.Bot.Types.Enums.ParseMode.Html)
+          .GetAwaiter()
+          .GetResult(),
+        Bot
+      );
+    }
+    return null!;
   }
   public IMessage sendText(IChat chat, string text)
   {
-    throw new NotImplementedException();
+    return new TelegramMessage(
+      Bot.SendTextMessageAsync(chat.Id, text, Telegram.Bot.Types.Enums.ParseMode.Html)
+        .GetAwaiter()
+        .GetResult(),
+      Bot
+    );
   }
 
   public Task ready()
