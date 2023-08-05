@@ -8,5 +8,5 @@ test*/
 devenv.sh
 *.swp
 .man
-.env
+*.env
 ._*

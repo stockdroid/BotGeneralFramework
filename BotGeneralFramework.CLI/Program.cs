@@ -157,7 +157,7 @@ if (!result)
 }
 
 // Parse the config file
-var config = CLIParser.GetParsedConfig(options.ConfigPath);
+var config = CLIParser.GetParsedConfig(options.ConfigPath).ParseConfig();
 
 // Create the engine and the app
 var engine = new Engine(config.ParseConfig(), options);

@@ -8,6 +8,8 @@ services:
     stdin_open: true
     tty: true
     entrypoint: /bin/bash
+    env_file:
+      - tests.env
     build:
       context: .
       dockerfile: Dockerfile
