@@ -9,3 +9,4 @@ devenv.sh
 *.swp
 .man
 .env
+._*
