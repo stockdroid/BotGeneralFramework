@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  botgf-devenv:
+    container_name: botgf-devenv
+    image: botgf-devenv
+    stdin_open: true
+    tty: true
+    entrypoint: /bin/bash
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./BotGeneralFramework.CLI/bin/Debug/net7.0
+        target: /usr/share/botgf
+        read_only: true
