@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   botgf-devenv:
+    user: ${USERID}:${GROUPID}
     container_name: botgf-devenv
     image: botgf-devenv
     stdin_open: true
@@ -15,3 +16,6 @@ services:
         source: ./BotGeneralFramework.CLI/bin/Debug/net7.0
         target: /usr/share/botgf
         read_only: true
+      - type: bind
+        source: ./Tests
+        target: /testing
