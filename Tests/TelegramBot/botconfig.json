@@ -1,0 +1,20 @@
+{
+  "platforms": {
+    "telegram": {
+      "access": {
+        "token": "${TGBOT_TOKEN}"
+      }
+    }
+  },
+  "bot": {
+    "version": "1.0.0",
+    "name": "TelegramBot",
+    "author": "Giovanni \u0026 Nico",
+    "description": "",
+    "license": "MIT",
+    "repository": ""
+  },
+  "options": {
+    "prefix": "/"
+  }
+}

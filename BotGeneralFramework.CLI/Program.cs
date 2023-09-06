@@ -157,10 +157,10 @@ if (!result)
 }
 
 // Parse the config file
-var config = CLIParser.GetParsedConfig(options.ConfigPath);
+var config = CLIParser.GetParsedConfig(options.ConfigPath).ParseConfig();
 
 // Create the engine and the app
-var engine = new Engine(config, options);
+var engine = new Engine(config.ParseConfig(), options);
 var app = engine.app;
 
 #region setup cli events on the app
@@ -214,8 +214,7 @@ app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
 
-// Register the telegram platforms if
-// setup in the config
+// Register the telegram platforms if setup in the config
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)

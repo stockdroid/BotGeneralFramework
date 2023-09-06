@@ -1,0 +1,14 @@
+{
+  "platforms": {},
+  "bot": {
+    "version": "1.0.0",
+    "name": "EnvBot",
+    "author": "Nick",
+    "description": "",
+    "license": "MIT",
+    "repository": ""
+  },
+  "options": {
+    "envVar": "test: ${PATH}++++${PATH}"
+  }
+}
