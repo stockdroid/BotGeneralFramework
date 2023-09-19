@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BotGeneralFramework.Utils\BotGeneralFramework.Utils.csproj" />
     <ProjectReference Include="..\BotGeneralFramework.Types\BotGeneralFramework.Types.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.Core.Plugins\BotGeneralFramework.Core.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>

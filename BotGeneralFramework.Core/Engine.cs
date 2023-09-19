@@ -1,4 +1,8 @@
 namespace BotGeneralFramework.Core;
+using System.Runtime.Loader;
+using BotGeneralFramework.Collections.Core;
+using BotGeneralFramework.Core.Plugins;
+using BotGeneralFramework.Interfaces.Core;
 using BotGeneralFramework.Records.CLI;
 
 public sealed class Engine
@@ -8,12 +12,15 @@ public sealed class Engine
   public Options options { get; private init; }
   public Jint.Engine jsEngine { get; private init; }
   public JSConsole console { get; private init; }
+  private readonly Dictionary<string, IPlugin> loadedPlugins = new();
 
   private Jint.Native.JsValue Require(string __path__, string path)
   {
     using var engine = new Jint.Engine();
     engine.SetValue("exports", new Jint.Native.JsObject(jsEngine));
     engine.SetValue("require", (string requirePath) => Require(engine.GetValue("__path__").ToString(), requirePath));
+    engine.SetValue("plugin", Import);
+    engine.SetValue("disable", DisablePlugin);
     engine.SetValue("console", console);
     engine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
     FileInfo module = new(
@@ -24,6 +31,36 @@ public sealed class Engine
       File.ReadAllText(module.FullName),
       module.FullName
     ).GetValue("exports");
+  }
+  private ExportCollection Import(string pluginName)
+  {
+    if (loadedPlugins.ContainsKey(pluginName)) return loadedPlugins[pluginName].Exports;
+
+    string pluginsRelativePath = config.Options.GetValueOrDefault("pluginsPath") ?? "plugins";
+    string pluginsPath = Path.Combine(options.ProjectPath, pluginsRelativePath);
+
+    IPlugin plugin = AssemblyPlugin.Import(pluginsPath, pluginName)
+                     ?? throw new Exception("Could not load plugin");
+
+    loadedPlugins.Add(pluginName, plugin);
+    try { plugin.Activate(app); }
+    catch (Exception ex) {
+      console.warn($"could not activate plugin {pluginName}: {ex.Message}");
+    }
+
+    return plugin.Exports;
+  }
+  private void DisablePlugin(ExportCollection pluginData)
+  {
+    IPlugin plugin = pluginData["blame"]();
+    try { plugin.Deactivate(); }
+    catch (Exception ex) {
+      console.warn($"could not deactivate plugin {plugin.Name}: {ex.Message}");
+    }
+    foreach (var pair in loadedPlugins) if (pair.Value.Name == plugin.Name) {
+      loadedPlugins.Remove(pair.Key);
+      break;
+    }
   }
 
   public Engine(ConfigFile config, Options options)
@@ -46,7 +83,9 @@ public sealed class Engine
     jsEngine.SetValue("options", options);
     jsEngine.SetValue("config", config);
     jsEngine.SetValue("require", (string requirePath) => Require(jsEngine.GetValue("__path__").ToString(), requirePath));
-    jsEngine.SetValue("eval", (string path) => Require(jsEngine.GetValue("__path__").ToString(), path));
+    jsEngine.SetValue("plugin", Import);
+    jsEngine.SetValue("disable", DisablePlugin);
+    jsEngine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
   }
 
   public App Run(FileInfo script)

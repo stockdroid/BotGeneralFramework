@@ -9,7 +9,7 @@ using System.Linq;
 
 public static class ConfigParser
 {
-  public const string ENV_VAR_REGEX = "\\${(.[^${]*)}";
+  public const string ENV_VAR_REGEX = "\\${([^${]*)}";
   
   private static string ParseVar(KeyValuePair<string, string> pair)
   {
