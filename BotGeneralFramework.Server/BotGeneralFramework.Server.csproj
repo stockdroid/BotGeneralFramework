@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>botgf-server</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-preview.4.23260.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BotGeneralFramework.CLI\BotGeneralFramework.CLI.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.Types\BotGeneralFramework.Types.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.Core\BotGeneralFramework.Core.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.TelegramBot\BotGeneralFramework.TelegramBot.csproj" />
+  </ItemGroup>
+
+</Project>

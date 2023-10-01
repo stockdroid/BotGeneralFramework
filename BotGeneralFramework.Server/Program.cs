@@ -1,8 +1,9 @@
-﻿using BotGeneralFramework.CLI;
-using BotGeneralFramework.Structs.CLI;
 using System.Text.Json;
-using BotGeneralFramework.Core;
+using BotGeneralFramework.Interfaces.Core;
+using BotGeneralFramework.CLI;
+using BotGeneralFramework.Structs.CLI;
 using BotGeneralFramework.Runtime;
+using BotGeneralFramework.Core;
 using BotGeneralFramework.TelegramBot;
 
 var tokenSource = new CancellationTokenSource();
@@ -146,6 +147,9 @@ new Argument
 });
 #endregion
 
+Console.Clear();
+
+// Parse cli args
 var options = CLIParser.Parse(args);
 
 // Assert the options
@@ -156,10 +160,10 @@ if (!result)
   return 1;
 }
 
-// Parse the config file
+// Parse bot config
 var config = CLIParser.GetParsedConfig(options.ConfigPath).ParseConfig();
 
-// Create the engine and the app
+var builder = WebApplication.CreateBuilder();
 var engine = new Engine(config, options);
 var app = engine.app;
 
@@ -201,29 +205,60 @@ app.on("cli.input", (ctx, next) => {
 });
 #endregion
 
-// Run the bot script
-app = engine.Run(
-  new FileInfo(options.MainModule!)
-);
-
-// Initialize the service console
-var serviceConsole = engine.InitConsole();
-
 // Add the event for an unknown command
 app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
-
 // Register the telegram platforms if setup in the config
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)
   );
 
-// Start the app
-Console.Clear();
+// Alert events that the app is running on a WebAPI
+app.use((ctx, next) => {
+  ctx.isWebAPI = true;
+  next();
+});
+
+// Run the script
+app = engine.Run(
+  new FileInfo(options.MainModule!)
+);
+
+// Initialize service console
+var serviceConsole = engine.InitConsole();
+
+// Add services to the container.
+builder.Services.AddControllers();
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Configure app service
+builder.Services.AddScoped<IApp>((_provider) => app);
+
+// redirect logging
+builder.Logging.ClearProviders();
+builder.Logging.AddProvider(new InterConsoleLoggerProvider(engine));
+
+var api = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (api.Environment.IsDevelopment())
+{
+  api.UseSwagger();
+  api.UseSwaggerUI();
+}
+
+// Start app
 serviceConsole.Start(tokenSource.Token);
 app.ready();
 
-await Task.Delay(-1);
+//api.UseHttpsRedirection();
+api.UseAuthorization();
+api.MapControllers();
+api.Run();
+
 return 0;
