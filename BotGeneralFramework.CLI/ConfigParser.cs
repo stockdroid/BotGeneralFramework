@@ -7,9 +7,10 @@ using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using System.Linq;
 
-public static class ConfigParser
+public static partial class ConfigParser
 {
-  public const string ENV_VAR_REGEX = "\\${([^${]*)}";
+  [GeneratedRegex("\\${([^${]*)}", RegexOptions.Compiled)]
+  private static partial Regex envVarRegex(); 
   
   private static string ParseVar(KeyValuePair<string, string> pair)
   {
@@ -17,7 +18,7 @@ public static class ConfigParser
     HashSet<string> parsedVars = new();
 
     // match env var regex
-    Regex.Matches(result, ENV_VAR_REGEX).ToList().ForEach(match => {
+    envVarRegex().Matches(result).ToList().ForEach(match => {
       if (match.Groups.Count < 2) return;
       if (parsedVars.Contains(match.Groups[1].Value)) return;
 
