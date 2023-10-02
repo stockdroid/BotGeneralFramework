@@ -11,10 +11,22 @@ namespace MyApp.Namespace
   {
     private readonly IApp _app;
 
-    [HttpGet("test")]
-    public bool Test() {
-      _app.trigger("api.v1.test");
-      return true;
+    [HttpGet("{request}/{**route}")]
+    public dynamic V1Request(string request, string? route = null) {
+      dynamic? ctx = _app.trigger($"api.v1.{request}", new() {
+        { "path", $"/{route}" }
+      });
+
+      if (ctx?.res is null) {
+        Response.StatusCode = 404;
+        return "Request not found";
+      } else if (ctx?.code is not null) {
+        Response.StatusCode = (int)ctx.code;
+        return ctx.res!;
+      }
+
+      Response.StatusCode = 200;
+      return ctx?.res!;
     }
 
     public ApiV1(IApp app) {

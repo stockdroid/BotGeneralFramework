@@ -25,7 +25,7 @@ public interface IApp
   /// </summary>
   /// <param name="eventName">The event name</param>
   /// <param name="context">The context</param>
-  public void trigger(string eventName, Dictionary<string, object?>? context = null);
+  public dynamic? trigger(string eventName, Dictionary<string, object?>? context = null);
   /// <summary>
   /// Trigger the ready event
   /// </summary>

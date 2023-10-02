@@ -205,26 +205,25 @@ app.on("cli.input", (ctx, next) => {
 });
 #endregion
 
-// Add the event for an unknown command
-app.on("cli.command", (ctx, next) => {
-  if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
-});
+// Run the script
+app = engine.Run(
+  new FileInfo(options.MainModule!)
+);
+
 // Register the telegram platforms if setup in the config
 if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
   app.register(
     new TelegramBot(telegramConfig)
   );
-
+// Add the event for an unknown command
+app.on("cli.command", (ctx, next) => {
+  if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
+});
 // Alert events that the app is running on a WebAPI
 app.use((ctx, next) => {
   ctx.isWebAPI = true;
   next();
 });
-
-// Run the script
-app = engine.Run(
-  new FileInfo(options.MainModule!)
-);
 
 // Initialize service console
 var serviceConsole = engine.InitConsole();

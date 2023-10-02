@@ -83,16 +83,18 @@ public sealed class App: IApp
     this.middlewares.AddRange(middlewares);
     return this;
   }
-  public void trigger(string eventName, Dictionary<string, object?>? context)
+  public dynamic? trigger(string eventName, Dictionary<string, object?>? context)
   {
     // Create a new context with the current context and the new context.
     dynamic ctx = this.context.Concat(context).ToExpandoObject();
     // If the event does not exist, return.
     if (!this.events.ContainsKey(eventName))
-          return;
+          return null;
     // If the event does exist, first call all the middlewares, then call all the callbacks.
     runMiddlewares(ctx)(0);
     runEventMiddlewares(eventName, ctx)(0);
+    // Return context
+    return ctx;
   }
   public void ready()
   {
