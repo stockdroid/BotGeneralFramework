@@ -17,12 +17,12 @@ CLIParser.AddArguments(new Argument
   Terminate = true,
   Action = (args, current) =>
   {
-    Console.WriteLine("BotGeneralFramework CLI.");
+    Console.WriteLine("BotGeneralFramework Server.");
     Console.WriteLine("By Nicola Leone Ciardi (Nik300).");
     Console.WriteLine("Find out more at https://github.com/Nik300/BotGeneralFramework.");
     return current;
   },
-  Description = "Show information about the CLI."
+  Description = "Show information about the Server."
 },
 new Argument
 {
@@ -35,7 +35,7 @@ new Argument
     Console.WriteLine("0.1 (alpha-canary)");
     return current;
   },
-  Description = "Show the version of the CLI."
+  Description = "Show the version of the Server."
 },
 new Argument
 {
@@ -147,10 +147,10 @@ new Argument
 });
 #endregion
 
-Console.Clear();
-
 // Parse cli args
 var options = CLIParser.Parse(args);
+
+Console.Clear();
 
 // Assert the options
 var (result, error) = AssertManager.AssertOptions(options);
