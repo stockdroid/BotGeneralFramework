@@ -3,7 +3,7 @@ using BotGeneralFramework.Records.CLI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MyApp.Namespace
+namespace BotGeneralFramework.Server
 {
   [Route("api/v1")]
   [ApiController]
