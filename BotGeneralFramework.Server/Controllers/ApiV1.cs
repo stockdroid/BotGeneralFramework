@@ -14,7 +14,9 @@ namespace BotGeneralFramework.Server
     [HttpGet("{request}/{**route}")]
     public dynamic V1Request(string request, string? route = null) {
       dynamic? ctx = _app.trigger($"api.v1.{request}", new() {
-        { "path", $"/{route}" }
+        { "path", $"/{route}" },
+        { "req", Request },
+        { "query", Request.Query }
       });
 
       if (ctx?.res is null) {

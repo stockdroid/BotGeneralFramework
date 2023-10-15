@@ -4,7 +4,6 @@ using BotGeneralFramework.CLI;
 using BotGeneralFramework.Structs.CLI;
 using BotGeneralFramework.Runtime;
 using BotGeneralFramework.Core;
-using BotGeneralFramework.TelegramBot;
 
 var tokenSource = new CancellationTokenSource();
 
@@ -203,6 +202,10 @@ app.on("cli.input", (ctx, next) => {
   if (!"clear".StartsWith(ctx.input)) { next(); return; }
   ctx.suggest("clear".Substring(ctx.input.Length));
 });
+app.on("cli.input", (ctx, next) => {
+  if (!"plugins".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("plugins".Substring(ctx.input.Length));
+});
 #endregion
 
 // Run the script
@@ -210,11 +213,6 @@ app = engine.Run(
   new FileInfo(options.MainModule!)
 );
 
-// Register the telegram platforms if setup in the config
-if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
-  app.register(
-    new TelegramBot(telegramConfig)
-  );
 // Add the event for an unknown command
 app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");

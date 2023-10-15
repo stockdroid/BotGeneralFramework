@@ -33,7 +33,8 @@ public sealed class TelegramBot : IBot
         { "replyMsg", new TelegramMessage(
           await bot.SendTextMessageAsync(
             update.Message.Chat, "⏳ <b>Loading...</b>",
-            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
+            cancellationToken: token
           ), bot
         ) }
       });
@@ -46,14 +47,15 @@ public sealed class TelegramBot : IBot
   {
     await Task.CompletedTask;
     if (token.IsCancellationRequested) return;
-    Console.WriteLine("EXCEPTION");
+    Console.WriteLine(error);
+    Environment.Exit(0);
   }
 
   public IMessage sendText(dynamic options)
   {
     if (options.text is string text && options.chat is IChat chat) {
       return new TelegramMessage(
-        Bot.SendTextMessageAsync(chat.Id, text, Telegram.Bot.Types.Enums.ParseMode.Html)
+        Bot.SendTextMessageAsync(chat.Id, text, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html)
           .GetAwaiter()
           .GetResult(),
         Bot
@@ -64,9 +66,13 @@ public sealed class TelegramBot : IBot
   public IMessage sendText(IChat chat, string text)
   {
     return new TelegramMessage(
-      Bot.SendTextMessageAsync(chat.Id, text, Telegram.Bot.Types.Enums.ParseMode.Html)
-        .GetAwaiter()
-        .GetResult(),
+      Bot.SendTextMessageAsync(
+        chat.Id,
+        text,
+        parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
+        cancellationToken: Cancellation.Token
+      ).GetAwaiter()
+       .GetResult(),
       Bot
     );
   }
@@ -80,12 +86,18 @@ public sealed class TelegramBot : IBot
       { "config", Info },
       { "bot", Bot }
     });
+
+    Bot.StartReceiving(
+      (bot, update, token) => Queue.EnqueueLowPriority(new Task(() => OnUpdate(bot, update, token).Wait())),
+      (bot, error, token) => Queue.EnqueueHighPriority(new Task(() => OnError(bot, error, token).Wait())),
+      cancellationToken: Cancellation.Token
+    );
     return Task.CompletedTask;
   }
   public Task stop()
   {
     Cancellation.Cancel();
-    if (App is not null) App.trigger("telegram.terminated", new());
+    App?.trigger("telegram.terminated", new());
     return Task.CompletedTask;
   }
 
@@ -97,10 +109,5 @@ public sealed class TelegramBot : IBot
     Cancellation = new CancellationTokenSource();
     Info = config;
     Queue = new("telegramTaskQueue", 5);
-    Bot.StartReceiving(
-      (bot, update, token) => Queue.EnqueueLowPriority(new Task(() => OnUpdate(bot, update, token).Wait())),
-      (bot, error, token) => Queue.EnqueueHighPriority(new Task(() => OnError(bot, error, token).Wait())),
-      cancellationToken: Cancellation.Token
-    );
   }
 }

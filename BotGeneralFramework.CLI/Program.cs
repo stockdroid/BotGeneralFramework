@@ -3,7 +3,6 @@ using BotGeneralFramework.Structs.CLI;
 using System.Text.Json;
 using BotGeneralFramework.Core;
 using BotGeneralFramework.Runtime;
-using BotGeneralFramework.TelegramBot;
 
 var tokenSource = new CancellationTokenSource();
 
@@ -199,6 +198,10 @@ app.on("cli.input", (ctx, next) => {
   if (!"clear".StartsWith(ctx.input)) { next(); return; }
   ctx.suggest("clear".Substring(ctx.input.Length));
 });
+app.on("cli.input", (ctx, next) => {
+  if (!"plugins".StartsWith(ctx.input)) { next(); return; }
+  ctx.suggest("plugins".Substring(ctx.input.Length));
+});
 #endregion
 
 // Run the bot script
@@ -213,12 +216,6 @@ var serviceConsole = engine.InitConsole();
 app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");
 });
-
-// Register the telegram platforms if setup in the config
-if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
-  app.register(
-    new TelegramBot(telegramConfig)
-  );
 
 // Start the app
 Console.Clear();
