@@ -86,6 +86,47 @@ public sealed class Engine
     jsEngine.SetValue("plugin", Import);
     jsEngine.SetValue("disable", DisablePlugin);
     jsEngine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
+
+    // setup basic cli commands on the app
+    app.on("cli.command", (ctx, next) => {
+      if (ctx.command != "info") { next(); return; }
+      Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
+      ctx.done = true;
+      next();
+    });
+    app.on("cli.command", (ctx, next) => {
+      if (ctx.command != "cls" && ctx.command != "clear") { next(); return; }
+      Console.Clear();
+      ctx.done = true;
+      next();
+    });
+    app.on("cli.command", (ctx, next) => {
+      if (ctx.command != "exit") { next(); return; }
+      app.stop();
+      Console.WriteLine("Bye 👋");
+      Environment.Exit(0);
+    });
+
+    app.on("cli.input", (ctx, next) => {
+      if (!"info".StartsWith(ctx.input)) { next(); return; }
+      ctx.suggest("info".Substring(ctx.input.Length));
+    });
+    app.on("cli.input", (ctx, next) => {
+      if (!"exit".StartsWith(ctx.input)) { next(); return; }
+      ctx.suggest("exit".Substring(ctx.input.Length));
+    });
+    app.on("cli.input", (ctx, next) => {
+      if (!"cls".StartsWith(ctx.input)) { next(); return; }
+      ctx.suggest("cls".Substring(ctx.input.Length));
+    });
+    app.on("cli.input", (ctx, next) => {
+      if (!"clear".StartsWith(ctx.input)) { next(); return; }
+      ctx.suggest("clear".Substring(ctx.input.Length));
+    });
+    app.on("cli.input", (ctx, next) => {
+      if (!"plugins".StartsWith(ctx.input)) { next(); return; }
+      ctx.suggest("plugins".Substring(ctx.input.Length));
+    });
   }
 
   public App Run(FileInfo script)
