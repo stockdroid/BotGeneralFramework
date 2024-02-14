@@ -3,8 +3,9 @@ using BotGeneralFramework.Interfaces.Core;
 using Telegram.Bot.Types;
 using BotGeneralFramework.Records.CLI.Config;
 using BotGeneralFramework.Core;
+using System.Text.Json;
 
-namespace BotGeneralFramework.TelegramBot;
+namespace BotGeneralFramework.TelegramSupport.Types;
 public sealed class TelegramBot : IBot
 {
   public string? PlatformAPI { get; } = "Telegram";
@@ -13,9 +14,31 @@ public sealed class TelegramBot : IBot
   private PlatformInfo Info { get; set; }
   private CancellationTokenSource Cancellation { get; set; }
   private TaskQueue Queue { get; set; }
+  private UpdateMethod Method { get; set; }
 
   private bool AssertRun(CancellationToken token) => 
     App is null || token.IsCancellationRequested;
+  private static bool IsUpdatePathValid(string[] path, string token) =>
+    path is ["update", string pathToken, ..] && pathToken != token;
+
+  private void receiveUpdate(dynamic ctx, dynamic next)
+  {
+    // gather data from context
+    string[] path = ctx.path;
+    string token = Info.Access["token"];
+    Update update = JsonSerializer.Deserialize<Update>(ctx.body);
+
+    if (!IsUpdatePathValid(path, token)) { next(); return; }
+
+    // call handlers
+    try { OnUpdate(Bot, update, Cancellation.Token).GetAwaiter().GetResult(); }
+    catch (Exception ex) { OnError(Bot, ex, Cancellation.Token).GetAwaiter().GetResult(); }
+  }
+  private void StartHTTP()
+  {
+    if (AssertRun(Cancellation.Token)) return;
+    App!.on("api.v1.telegram", receiveUpdate);
+  }
 
   private async Task OnUpdate(
     ITelegramBotClient bot,
@@ -109,5 +132,8 @@ public sealed class TelegramBot : IBot
     Cancellation = new CancellationTokenSource();
     Info = config;
     Queue = new("telegramTaskQueue", 5);
+    Method = Enum.TryParse<UpdateMethod>(
+              config.Options.GetValueOrDefault("updateMethod"),
+              out var m) ? m : UpdateMethod.polling;
   }
 }

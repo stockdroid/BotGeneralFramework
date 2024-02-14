@@ -6,7 +6,7 @@ using BotGeneralFramework.Core;
 using BotGeneralFramework.Interfaces.Core;
 using BotGeneralFramework.Records.CLI;
 using BotGeneralFramework.Records.CLI.Config;
-using BotGeneralFramework.TelegramBot;
+using BotGeneralFramework.TelegramSupport.Types;
 
 public sealed class TelegramSupport : IPlugin
 {
@@ -18,8 +18,8 @@ public sealed class TelegramSupport : IPlugin
     { "getBot", (Delegate)GetBot }
   };
 
-  private IApp? _app = null;
-  public TelegramBot? _botInstance = null; // used by bot cores to register their telegram instance
+  private IApp? _app;
+  private TelegramBot? _botInstance; // used by bot cores to register their telegram instance
 
   // exported functions
   private TelegramBot? CreateBot(dynamic configData)
@@ -31,7 +31,7 @@ public sealed class TelegramSupport : IPlugin
     
     // return instanciated bot, according to the provided data
     if (configData is ConfigFile config) return _botInstance = new TelegramBot(config.Platforms["telegram"]);
-    else if (configData is PlatformInfo tgInfo) return _botInstance = new TelegramBot(tgInfo);
+    if (configData is PlatformInfo tgInfo) return _botInstance = new TelegramBot(tgInfo);
 
     // invalid data
     return null;

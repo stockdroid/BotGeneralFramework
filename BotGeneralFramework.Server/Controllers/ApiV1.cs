@@ -14,9 +14,10 @@ namespace BotGeneralFramework.Server
     [HttpGet("{request}/{**route}")]
     public dynamic V1Request(string request, string? route = null) {
       dynamic? ctx = _app.trigger($"api.v1.{request}", new() {
-        { "path", $"/{route}" },
+        { "path", route?.Split('/') ?? [] },
         { "req", Request },
-        { "query", Request.Query }
+        { "query", Request.Query },
+        { "body", new StreamReader(Request.Body).ReadToEnd() }
       });
 
       if (ctx?.res is null) {
