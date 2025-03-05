@@ -72,7 +72,7 @@ public sealed class AssemblyPlugin: IPlugin
     assemblyContext.Resolving += (context, assemblyName) => {
       if (assemblyName.Name is null) return null;
 
-      FileInfo assemblyInfo = new(Path.Combine(pluginBundle, $"{assemblyName.Name}.dll"));
+      FileInfo assemblyInfo = new(Path.Combine(pluginDeps, $"{assemblyName.Name}.dll"));
       if (!assemblyInfo.Exists) return null;
 
       return context.LoadFromAssemblyPath(assemblyInfo.FullName);

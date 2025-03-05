@@ -1,22 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <AssemblyName>botgf</AssemblyName>
-    <RootNamespace>BotGeneralFramework.CLI</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>TelegramSupport</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fastenshtein" Version="1.0.0.8" />
-    <PackageReference Include="Pastel" Version="4.1.0" />
+    <PackageReference Include="Telegram.Bot" Version="19.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BotGeneralFramework.Core\BotGeneralFramework.Core.csproj" />
     <ProjectReference Include="..\BotGeneralFramework.Types\BotGeneralFramework.Types.csproj" />
+    <ProjectReference Include="..\BotGeneralFramework.Core\BotGeneralFramework.Core.csproj" />
   </ItemGroup>
 
 </Project>

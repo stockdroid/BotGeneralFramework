@@ -4,7 +4,6 @@ using BotGeneralFramework.CLI;
 using BotGeneralFramework.Structs.CLI;
 using BotGeneralFramework.Runtime;
 using BotGeneralFramework.Core;
-using BotGeneralFramework.TelegramBot;
 
 var tokenSource = new CancellationTokenSource();
 
@@ -165,56 +164,10 @@ var config = CLIParser.GetParsedConfig(options.ConfigPath).ParseConfig();
 
 var builder = WebApplication.CreateBuilder();
 var engine = new Engine(config, options);
-var app = engine.app;
-
-#region setup cli events on the app
-app.on("cli.command", (ctx, next) => {
-  if (ctx.command != "info") { next(); return; }
-  Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
-  ctx.done = true;
-  next();
-});
-app.on("cli.command", (ctx, next) => {
-  if (ctx.command != "cls" && ctx.command != "clear") { next(); return; }
-  Console.Clear();
-  ctx.done = true;
-  next();
-});
-app.on("cli.command", (ctx, next) => {
-  if (ctx.command != "exit") { next(); return; }
-  app.stop();
-  Console.WriteLine("Bye 👋");
-  Environment.Exit(0);
-});
-
-app.on("cli.input", (ctx, next) => {
-  if (!"info".StartsWith(ctx.input)) { next(); return; }
-  ctx.suggest("info".Substring(ctx.input.Length));
-});
-app.on("cli.input", (ctx, next) => {
-  if (!"exit".StartsWith(ctx.input)) { next(); return; }
-  ctx.suggest("exit".Substring(ctx.input.Length));
-});
-app.on("cli.input", (ctx, next) => {
-  if (!"cls".StartsWith(ctx.input)) { next(); return; }
-  ctx.suggest("cls".Substring(ctx.input.Length));
-});
-app.on("cli.input", (ctx, next) => {
-  if (!"clear".StartsWith(ctx.input)) { next(); return; }
-  ctx.suggest("clear".Substring(ctx.input.Length));
-});
-#endregion
-
-// Run the script
-app = engine.Run(
+var app = engine.Run(
   new FileInfo(options.MainModule!)
 );
 
-// Register the telegram platforms if setup in the config
-if (config.Platforms.TryGetValue("telegram", out var telegramConfig))
-  app.register(
-    new TelegramBot(telegramConfig)
-  );
 // Add the event for an unknown command
 app.on("cli.command", (ctx, next) => {
   if (!ctx.done) Console.WriteLine($"❌ Command {ctx.command} not found!");

@@ -235,12 +235,12 @@ public static class CLIParser
   public static ConfigFile CreateConfig()
   {
     // Gather the info of the bot
-    var name = CLIParser.RequestParameter("Name of the bot");
-    var author = CLIParser.RequestParameter("Author of the bot");
-    var version = CLIParser.RequestParameter("Version of the bot", "1.0.0");
-    var description = CLIParser.RequestParameter("Description of the bot", "");
-    var license = CLIParser.RequestParameter("License of the bot", "MIT");
-    var repository = CLIParser.RequestParameter("Repository of the bot", "");
+    var name = CLIParser.RequestParameter("Name");
+    var author = CLIParser.RequestParameter("Author(s)");
+    var version = CLIParser.RequestParameter("Version", "1.0.0");
+    var description = CLIParser.RequestParameter("Description", "");
+    var license = CLIParser.RequestParameter("License", "MIT");
+    var repository = CLIParser.RequestParameter("Repository", "");
 
     // Create a new config
     return new()

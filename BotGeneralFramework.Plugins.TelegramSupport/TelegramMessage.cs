@@ -3,7 +3,7 @@ using BotGeneralFramework.Interfaces.Core;
 using Telegram.Bot.Types;
 using BotGeneralFramework.Records.CLI.Config;
 
-namespace BotGeneralFramework.TelegramBot;
+namespace BotGeneralFramework.TelegramSupport.Types;
 public sealed class TelegramMessage : IMessage
 {
   private readonly Message _message;
