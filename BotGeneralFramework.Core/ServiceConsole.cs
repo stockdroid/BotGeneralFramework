@@ -51,7 +51,7 @@ public sealed class ServiceConsole
     _buffer += key.KeyChar;
     ClearLine();
     _suggestionBuffer = "";
-    App.trigger("cli.input", new()
+    App.trigger("cli.input", new Dictionary<string, object?>()
     {
       { "input", _buffer },
       {
@@ -92,7 +92,7 @@ public sealed class ServiceConsole
 
     Console.WriteLine($"{commandName.Pastel(ConsoleColor.Cyan)}:");
 
-    App.trigger("cli.command", new()
+    App.trigger("cli.command", new Dictionary<string, object?>()
     {
       { "command", commandName },
       { "done", false },

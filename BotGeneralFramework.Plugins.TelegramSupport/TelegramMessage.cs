@@ -11,18 +11,24 @@ public sealed class TelegramMessage : IMessage
 
   public string Id => _message.MessageId.ToString();
   public string? Text => _message.Text;
-  public IContent[]? Content => throw new NotImplementedException();
+  public IContent[]? Content {
+    get {
+      if (_message.Type == Telegram.Bot.Types.Enums.MessageType.Text)
+        return [ new TelegramContent.TextContent(_message.MessageId.ToString()) ];
+      return null;
+    }
+  }
 
   public async Task<bool> delete()
   {
-    try { await botClient.DeleteMessageAsync(_message.Chat, _message.MessageId); }
+    try { await botClient.DeleteMessage(_message.Chat, _message.MessageId); }
     catch { return false; }
     return true;
   }
   public async Task<IMessage?> edit(string text)
   {
     try { return new TelegramMessage(
-      await botClient.EditMessageTextAsync(_message.Chat, _message.MessageId, text),
+      await botClient.EditMessageText(_message.Chat, _message.MessageId, text),
       botClient
     ); }
     catch { return null; }

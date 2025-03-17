@@ -1,7 +1,7 @@
 namespace BotGeneralFramework.Core;
 using BotGeneralFramework.Interfaces.Core;
 using BotGeneralFramework.Delegates.Core;
-
+using System.Dynamic;
 /// <summary>
 /// The app class
 /// </summary>
@@ -19,7 +19,9 @@ public sealed class App: IApp
   private void callAndCatchMiddleware(dynamic ctx, Action next, Middleware middleware)
   {
     try { middleware(ctx, next); }
-    catch(Exception e) { Console.WriteLine($"Exception while running a middleware: {e}"); }
+    catch(Exception e) { this.trigger("error", new Dictionary<string, object?>() {
+      { "error", e.Message }
+    }); }
   }
 
   private Action<int> runMiddlewares(dynamic ctx)
@@ -83,10 +85,14 @@ public sealed class App: IApp
     this.middlewares.AddRange(middlewares);
     return this;
   }
-  public dynamic? trigger(string eventName, Dictionary<string, object?>? context)
+  public dynamic? trigger(string eventName, dynamic? context)
   {
+    // If the context is an ExpandoObject, convert it to a Dictionary.
+    if (context is ExpandoObject expando)
+      context = expando.ToDictionary();
+
     // Create a new context with the current context and the new context.
-    dynamic ctx = this.context.Concat(context).ToExpandoObject();
+    dynamic ctx = this.context.Concat((Dictionary<string, object?>?)context).ToExpandoObject();
     // If the event does not exist, return.
     if (!this.events.ContainsKey(eventName))
           return null;
@@ -99,7 +105,7 @@ public sealed class App: IApp
   public void ready()
   {
     runningBots.ForEach(x => x.ready());
-    trigger("ready", new());
+    trigger("ready", new Dictionary<string, object?>());
   }
   public Task stop() =>
     Task.WhenAll(runningBots.Select(x => x.stop()));

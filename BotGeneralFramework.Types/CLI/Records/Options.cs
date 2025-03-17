@@ -5,6 +5,7 @@ public sealed record Options
 {
   private readonly CachedProperty<string> _configPath = Cache.createCache<string>(true, "./botconfig.json");
   private readonly CachedProperty<string> _mainModule = Cache.createCache<string>(true);
+  private readonly CachedProperty<string> _envFile = Cache.createCache<string>(true, "./.env");
   private readonly CachedProperty<string> _projectPath = Cache.createCache<string>(true);
   private readonly CachedProperty<bool> _parsed = Cache.createCacheUnmanaged<bool>(false, false);
   
@@ -46,4 +47,15 @@ public sealed record Options
       Directory.GetParent(_mainModule.getter()!)!
         .FullName
     )!;
+  /// <summary>
+  /// The path to the env file
+  /// </summary>
+  /// <remarks>
+  /// This is the path to the env file that will be used by the program.
+  /// </remarks>
+  public string EnvFile
+  {
+    get => _envFile.getter()!;
+    set => _envFile.setter(value);
+  }
 }

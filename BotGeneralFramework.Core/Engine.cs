@@ -90,7 +90,7 @@ public sealed class Engine
     // setup basic cli commands on the app
     app.on("cli.command", (ctx, next) => {
       if (ctx.command != "info") { next(); return; }
-      Console.WriteLine("BotGeneralFramework. Copyright © Foooball SRL, all rights reserved.");
+      Console.WriteLine("BotGeneralFramework. Copyright © AiSparks SRL, all rights reserved.");
       ctx.done = true;
       next();
     });
@@ -126,6 +126,12 @@ public sealed class Engine
     app.on("cli.input", (ctx, next) => {
       if (!"plugins".StartsWith(ctx.input)) { next(); return; }
       ctx.suggest("plugins".Substring(ctx.input.Length));
+    });
+
+    // route all errors to the console
+    app.on("error", (ctx, next) => {
+      console.error(ctx.error);
+      next();
     });
   }
 

@@ -20,7 +20,7 @@ public sealed class TaskQueue
     if (queue.Count == 0) { End(); return Task.CompletedTask; }
     _currentTask = queue.Dequeue();
 
-    App.trigger($"{_queueName}.elementDequeued", new()
+    App.trigger($"{_queueName}.elementDequeued", new Dictionary<string, object?>()
     {
       { "queueCount", _lowerPriorityTaskQueue.Count + _higherPriorityTaskQueue.Count }
     });
@@ -47,7 +47,7 @@ public sealed class TaskQueue
       return Task.FromException(new Exception("Too many requests"));
     queue.Enqueue(task);
 
-    App.trigger($"{_queueName}.elementEnqueued", new()
+    App.trigger($"{_queueName}.elementEnqueued", new Dictionary<string, object?>()
     {
       { "queueCount", _lowerPriorityTaskQueue.Count + _higherPriorityTaskQueue.Count }
     });

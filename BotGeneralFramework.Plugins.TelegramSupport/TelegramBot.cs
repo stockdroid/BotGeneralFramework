@@ -49,12 +49,12 @@ public sealed class TelegramBot : IBot
     await Task.CompletedTask;
     if (AssertRun(token)) return;
     if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message && update.Message is not null)
-      App!.trigger("message", new() {
+      App!.trigger("message", new Dictionary<string, object?>() {
         { "bot", this },
         { "platformMessage", update.Message! },
         { "message", new TelegramMessage(update.Message, bot) },
         { "replyMsg", new TelegramMessage(
-          await bot.SendTextMessageAsync(
+          await bot.SendMessage(
             update.Message.Chat, "⏳ <b>Loading...</b>",
             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
             cancellationToken: token
@@ -78,7 +78,7 @@ public sealed class TelegramBot : IBot
   {
     if (options.text is string text && options.chat is IChat chat) {
       return new TelegramMessage(
-        Bot.SendTextMessageAsync(chat.Id, text, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html)
+        Bot.SendMessage(chat.Id, text, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html)
           .GetAwaiter()
           .GetResult(),
         Bot
@@ -89,7 +89,7 @@ public sealed class TelegramBot : IBot
   public IMessage sendText(IChat chat, string text)
   {
     return new TelegramMessage(
-      Bot.SendTextMessageAsync(
+      Bot.SendMessage(
         chat.Id,
         text,
         parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
@@ -105,7 +105,7 @@ public sealed class TelegramBot : IBot
     if (App is null) return Task.CompletedTask;
     
     Queue.Ready(App);
-    App.trigger("telegram.ready", new() {
+    App.trigger("telegram.ready", new Dictionary<string, object?>() {
       { "config", Info },
       { "bot", Bot }
     });
@@ -120,7 +120,7 @@ public sealed class TelegramBot : IBot
   public Task stop()
   {
     Cancellation.Cancel();
-    App?.trigger("telegram.terminated", new());
+    App?.trigger("telegram.terminated", new Dictionary<string, object?>());
     return Task.CompletedTask;
   }
 
