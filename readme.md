@@ -1,5 +1,5 @@
 # Bot General Framework
-This is a <b>general purpose bot framework</b> that aims at generalizing and simplyfying <b>bot frameworks</b>.
+This is a <b>general purpose bot framework</b> that aims at generalizing and simplifying <b>bot frameworks</b>.
 
 Go to the [documentation](docs/index.md) to know more on how to set up the framework for yourself.
 
