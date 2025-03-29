@@ -86,6 +86,7 @@ public sealed class Engine
     jsEngine.SetValue("plugin", Import);
     jsEngine.SetValue("disable", DisablePlugin);
     jsEngine.SetValue("eval", (string expression) => jsEngine.Evaluate(expression));
+    jsEngine.SetValue("exports", new Jint.Native.JsObject(jsEngine));
 
     // setup basic cli commands on the app
     app.on("cli.command", (ctx, next) => {
